@@ -6,6 +6,7 @@ import {DebugMessageTypeBGtoCS, DebugMessageTypeBGtoUI, DebugMessageTypeCStoBG} 
 import {isFirefox} from '../utils/platform';
 
 import {Extension} from './extension';
+import {connectDesktopThemeHost} from './desktop-theme-bridge';
 import {makeChromiumHappy} from './make-chromium-happy';
 import {setNewsForTesting} from './newsmaker';
 import {ASSERT} from './utils/log';
@@ -51,6 +52,10 @@ type TestMessage = {
 
 // Start extension
 const extension = Extension.start();
+
+if (__CHROMIUM_MV3__) {
+    connectDesktopThemeHost(extension, Extension.changeSettings);
+}
 
 const welcome = `  /''''\\
  (0)==(0)
