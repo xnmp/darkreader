@@ -22,6 +22,7 @@ export interface ExtensionAdapter {
     startActivation: (email: string, key: string) => Promise<void>;
     resetActivation: () => Promise<void>;
     hideHighlights: (ids: string[]) => Promise<void>;
+    waitUntilReady: () => Promise<void>;
 }
 
 export default class Messenger {
@@ -58,10 +59,13 @@ export default class Messenger {
                 )
             )
         ) {
-            Messenger.onUIMessage(message as MessageUItoBG, sendResponse);
+            Messenger.adapter
+                .waitUntilReady()
+                .then(() => Messenger.onUIMessage(message as MessageUItoBG, sendResponse));
             return ([
                 MessageTypeUItoBG.GET_DATA,
                 MessageTypeUItoBG.GET_DEVTOOLS_DATA,
+                MessageTypeUItoBG.APPLY_DEV_FIXES,
             ].includes(message.type as MessageTypeUItoBG));
         }
     }
