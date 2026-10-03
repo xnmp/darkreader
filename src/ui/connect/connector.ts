@@ -18,7 +18,17 @@ export default class Connector implements ExtensionActions {
 
     private async sendRequest<T>(type: MessageTypeUItoBG, data?: {type: DevFixType; text: string}): Promise<T> {
         return new Promise<T>((resolve, reject) => {
-            chrome.runtime.sendMessage<MessageUItoBG>({type, data}, ({data, error}: MessageUItoBG) => {
+            chrome.runtime.sendMessage<MessageUItoBG>({type, data}, (response?: MessageUItoBG) => {
+                const transportError = chrome.runtime.lastError;
+                if (transportError) {
+                    reject(new Error(transportError.message));
+                    return;
+                }
+                if (response == null) {
+                    reject(new Error('Dark Reader background worker returned no response'));
+                    return;
+                }
+                const {data, error} = response;
                 if (error) {
                     reject(error);
                 } else {

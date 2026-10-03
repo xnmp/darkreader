@@ -65,6 +65,7 @@ export default class Messenger {
             return ([
                 MessageTypeUItoBG.GET_DATA,
                 MessageTypeUItoBG.GET_DEVTOOLS_DATA,
+                MessageTypeUItoBG.APPLY_DEV_FIXES,
             ].includes(message.type as MessageTypeUItoBG));
         }
     }

@@ -5,6 +5,7 @@ import type {ExtensionData, ExtensionActions, DebugMessageBGtoCS, DebugMessageBG
 import {DebugMessageTypeBGtoUI} from '../../utils/message';
 import {isMobile, isFirefox} from '../../utils/platform';
 import Connector from '../connect/connector';
+import {Button} from '../controls';
 import {getFontList, saveFile} from '../utils';
 
 import Body from './components/body';
@@ -54,11 +55,25 @@ async function start() {
     const connector = new Connector();
     window.addEventListener('unload', () => connector.disconnect());
 
-    const [data, fonts, installation] = await Promise.all([
-        connector.getData(),
-        getFontList(),
-        getInstallationData(),
-    ]);
+    let data: ExtensionData;
+    let fonts: string[];
+    let installation: {date: number; version: string};
+    try {
+        [data, fonts, installation] = await Promise.all([
+            connector.getData(),
+            getFontList(),
+            getInstallationData(),
+        ]);
+    } catch (error) {
+        console.error('Dark Reader popup failed to load:', error);
+        sync(document.body, (
+            <body>
+                <p role="alert">Dark Reader could not connect to its background worker. Reload the extension, then open this popup again.</p>
+                <Button onclick={() => chrome.runtime.reload()}>Reload extension</Button>
+            </body>
+        ));
+        return;
+    }
     renderBody(data, fonts, installation, connector);
     connector.subscribeToChanges((data) => renderBody(data, fonts, installation, connector));
 }
